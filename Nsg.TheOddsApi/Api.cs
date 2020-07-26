@@ -1,47 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Nsg.TheOddsApi
 {
-    public class TheOddsApi : IRequestFactory
+    public static class TheOddsApi 
     {
+        private static readonly string BaseUrl = "https://api.the-odds-api.com/";
 
-        public static TheOddsApi Current = new TheOddsApi();
+        public static string ApiKey { get; set; }
 
-        public TheOddsApi()
-        {
-            this.BaseUrl = "https://api.the-odds-api.com/";
-        }
-
-        public string ApiKey { get; set; }
-
-        public string BaseUrl { get; set; }
-
-        public Request CreateRequest()
+        private static Request CreateRequest()
         {
             Request result = new Request();
 
-            result.BaseUrl = this.BaseUrl;
+            result.BaseUrl = BaseUrl;
             result.Parameters.Add("apiKey", ApiKey);
 
             return result;
         }
 
-        public Task<List<Sport>> GetSports()
-        {
-            Request Request = CreateRequest();
-
-            Request.HttpMethod = HttpMethod.Get;
-            Request.Resource = "v3/sports";
-
-
-            return Request.Execute<OddsResult<List<Sport>>>().ContinueWith((x) => { return x.Result.Data; });
-            //return Request.Execute<OddsResult<List<Sport>>>().Data;
-
-        }
-
-        public Task<List<Match>> GetMatches(string SportKey, Region Region, Market Market)
+        public static Task<List<Match>> GetMatches(string SportKey, Region Region, Market Market)
         {
             Request Request = CreateRequest();
 
@@ -52,7 +32,48 @@ namespace Nsg.TheOddsApi
             Request.Parameters.Add("mkt", Market.ToString());
 
             return Request.Execute<OddsResult<List<Match>>>().ContinueWith((x) => { return x.Result.Data; });
-            //return Request.Execute<OddsResult<List<Match>>>().Data;
+
+        }
+
+        public static Task<List<Sport>> GetSports()
+        {
+            Request Request = CreateRequest();
+
+            Request.HttpMethod = HttpMethod.Get;
+            Request.Resource = "v3/sports";
+
+            return Request.Execute<OddsResult<List<Sport>>>().ContinueWith((x) => { return x.Result.Data; });
+
+        }
+
+        public static List<Match> SimpleOddsAnalyze(List<Match> Matches, string SiteKey1, string SiteKey2)
+        {
+            
+            foreach (Match match in Matches)
+            {
+                if (HasSite(match, SiteKey1) && HasSite(match, SiteKey2))
+                {
+                    //match.BestOdds= CompareOdds();
+                }
+                else
+                {
+                    match.BestOdds = null;
+                }
+
+            }
+                
+
+            return Matches;
+        }
+
+        private static bool HasSite(Match Match, string SiteKey)
+        {
+            return Match.Sites.Find((a) => a.SiteKey == SiteKey) != null;
+        }
+
+        private static Site CompareOdds(Site Site1, Site Site2)
+        {
+            throw new NotImplementedException();
         }
     }
 }

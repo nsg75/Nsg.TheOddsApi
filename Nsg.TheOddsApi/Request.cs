@@ -13,11 +13,11 @@ namespace Nsg.TheOddsApi
         public static readonly HttpClient Client = new HttpClient();
 
         public string BaseUrl { get; set; }
-        public string Resource { get; set; }
-        public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
         public object Data { get; set; }
-        public object ResultType { get; set; }
         public HttpMethod HttpMethod { get; set; }
+        public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
+        public string Resource { get; set; }
+        public object ResultType { get; set; }
 
         private Task<HttpResponseMessage> Execute()
         {
@@ -60,23 +60,16 @@ namespace Nsg.TheOddsApi
             }
 
             return Response;
-
         }
 
         public Task<TResult> Execute<TResult>()
         {
-            TResult Result;
-
             Task<HttpResponseMessage> Response = Execute();
 
             return Response.ContinueWith((x) =>
             {
                 return JsonSerializer.Deserialize<TResult>(x.Result.Content.ReadAsStringAsync().Result);
             });
-
-            //Result = JsonSerializer.Deserialize<TResult>(Response.Content.ReadAsStringAsync().Result);
-
-            //return Result;
         }
 
         private string ResolveParameters(string Uri)
@@ -100,16 +93,5 @@ namespace Nsg.TheOddsApi
             return Result;
 
         }
-
     }
-
-    public interface IRequestFactory
-    {
-
-        string BaseUrl { get; set; }
-
-        Request CreateRequest();
-
-    }
-
 }

@@ -70,6 +70,8 @@ namespace Nsg.TheOddsApi
         public int SitesCount { get; set; }
 
         public DateTime CommenceTime { get { return DateTimeOffset.FromUnixTimeMilliseconds(CommenceTimeTimeStamp).DateTime; } }
+
+        public Site BestOdds { get; set; }
     }
 
     public class Site
@@ -122,8 +124,4 @@ namespace Nsg.TheOddsApi
         public string[] Position { get; set; }
     }
 
-    public class QuotaAnalyzer
-    {
-
-    }
 }
